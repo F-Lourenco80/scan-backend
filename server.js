@@ -1,5 +1,6 @@
 const express = require('express');
-//const cors = require('cors');
+const fetch = require('node-fetch'); // or just use global fetch if Node 18+
+const cors = require('cors');        // <---- THIS LINE IS REQUIRED!
 require('dotenv').config();
 
 const app = express(); // <--- app is declared here!
