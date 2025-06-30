@@ -1,14 +1,5 @@
-const express = require('express');
-const fetch = require('node-fetch');
-const cors = require('cors');
-require('dotenv').config();
-
-const app = express();
-app.use(express.json());
-app.use(cors({ origin: 'https://monsidotest.neocities.org' })); // or your real site
-
 app.post('/trigger-scan', async (req, res) => {
-  const bearerToken = process.env.MONSIDO_TOKEN; // safe on backend only
+  const bearerToken = process.env.MONSIDO_TOKEN;
   const apiUrl = 'https://app1.eu.monsido.com/api/domains/130448/rescan';
   try {
     const apiResponse = await fetch(apiUrl, {
@@ -18,12 +9,24 @@ app.post('/trigger-scan', async (req, res) => {
         'Content-Type': 'application/json'
       }
     });
-    const data = await apiResponse.json();
+
+    // ---- ADDED LOGGING ----
+    console.log('Monsido API response status:', apiResponse.status);
+    // Try to log json body, but handle non-JSON just in case
+    let data;
+    try {
+      data = await apiResponse.json();
+      console.log('Monsido API response body:', data);
+    } catch (jsonErr) {
+      console.log('Monsido API returned non-JSON data');
+      data = { message: 'Non-JSON response from Monsido' };
+    }
+
     res.status(apiResponse.status).json(data);
+
   } catch (error) {
+    // ---- ADDED LOGGING ----
+    console.error('Failed to trigger Monsido scan:', error);
     res.status(500).json({ error: "Failed to trigger scan", details: error.message });
   }
 });
-
-const PORT = process.env.PORT || 10000;
-app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
