@@ -1,5 +1,5 @@
 const express = require('express');
-const cors = require('cors');
+//const cors = require('cors');
 require('dotenv').config();
 
 const app = express(); // <--- app is declared here!
@@ -7,9 +7,10 @@ app.use(express.json());
 app.use(cors({ origin: 'https://monsidotest.neocities.org' })); // or your real site
 
 // Place this BELOW the declarations above
-app.post('/trigger-scan', async (req, res) => {
+app.post('/trigger-scan/:domainId', async (req, res) => {
+  const domainId = req.params.domainId || '130448'; // fallback to default if not provided
   const bearerToken = process.env.MONSIDO_TOKEN;
-  const apiUrl = 'https://app1.eu.monsido.com/api/domains/130448/rescan';
+  const apiUrl = `https://app1.eu.monsido.com/api/domains/${domainId}/rescan`;
   try {
     const apiResponse = await fetch(apiUrl, {
       method: 'POST',
@@ -19,9 +20,7 @@ app.post('/trigger-scan', async (req, res) => {
       }
     });
 
-    // ---- ADDED LOGGING ----
     console.log('Monsido API response status:', apiResponse.status);
-    // Try to log json body, but handle non-JSON just in case
     let data;
     try {
       data = await apiResponse.json();
@@ -34,7 +33,6 @@ app.post('/trigger-scan', async (req, res) => {
     res.status(apiResponse.status).json(data);
 
   } catch (error) {
-    // ---- ADDED LOGGING ----
     console.error('Failed to trigger Monsido scan:', error);
     res.status(500).json({ error: "Failed to trigger scan", details: error.message });
   }
