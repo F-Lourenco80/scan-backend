@@ -4,14 +4,11 @@ const cors = require('cors');
 require('dotenv').config();
 
 const app = express();
-
-// 👇 CORRECT: Only allow YOUR Neocities site!
-app.use(cors({ origin: 'https://monsidotest.neocities.org' }));
-
 app.use(express.json());
+app.use(cors({ origin: 'https://monsidotest.neocities.org' })); // or your real site
 
 app.post('/trigger-scan', async (req, res) => {
-  const bearerToken = process.env.MONSIDO_TOKEN;
+  const bearerToken = process.env.MONSIDO_TOKEN; // safe on backend only
   const apiUrl = 'https://app1.eu.monsido.com/api/domains/130448/rescan';
   try {
     const apiResponse = await fetch(apiUrl, {
@@ -28,6 +25,5 @@ app.post('/trigger-scan', async (req, res) => {
   }
 });
 
-// 👇 This is IMPORTANT on Render!
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
